@@ -1,0 +1,25 @@
+{
+  "name": "node-ts-template",
+  "version": "0.0.1",
+  "description": "This is a typescript library project template.",
+  "main": "dist/bundle.js",
+  "types": "dist/index.d.ts",
+  "author": "Ginkgoch",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/jest": "^24.0.15",
+    "@types/node": "^12.6.8",
+    "jest": "^24.8.0",
+    "jest-cli": "^24.8.0",
+    "ts-jest": "^24.0.2",
+    "ts-loader": "^6.0.4",
+    "typescript": "^3.5.3",
+    "webpack": "^4.39.1",
+    "webpack-cli": "^3.3.6"
+  },
+  "scripts": {
+    "test": "./node_modules/.bin/jest",
+    "clean": "rm -rf dist",
+    "build": "rm -rf dist && ./node_modules/.bin/webpack"
+  }
+}
