@@ -4,7 +4,7 @@ export default class Services {
     static map() {
         const map = new gk.mapping.XYZMap(256, 256, 'GOOGLE');
 
-        const source1 = new gk.layers.ShapefileFeatureSource('./data/cntry02-900913.shp');
+        const source1 = new gk.layers.ShapefileFeatureSource('./demo/data/cntry02-900913.shp');
         source1.projection.from.projection = 'GOOGLE';
         source1.projection.to.projection = 'GOOGLE';
 
