@@ -20,6 +20,7 @@
   "scripts": {
     "test": "./node_modules/.bin/jest",
     "clean": "rm -rf dist",
+    "watch": "rm -rf dist && ./node_modules/.bin/tsc --watch",
     "build-dev": "rm -rf dist && ./node_modules/.bin/tsc",
     "build": "rm -rf dist && ./node_modules/.bin/webpack",
     "serve": "rm -rf dist && ./node_modules/.bin/tsc && node dist/index.js"

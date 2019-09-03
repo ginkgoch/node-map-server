@@ -121,4 +121,4 @@ router.get('properties', Utils.resolveRouterPath('/map/groups/:group/layers/:lay
     }
 });
 
-export { router };
+export let MapRouter = router;
