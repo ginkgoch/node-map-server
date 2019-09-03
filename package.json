@@ -20,8 +20,9 @@
   "scripts": {
     "test": "./node_modules/.bin/jest",
     "clean": "rm -rf dist",
+    "build-dev": "rm -rf dist && ./node_modules/.bin/tsc",
     "build": "rm -rf dist && ./node_modules/.bin/webpack",
-    "demo": "rm -rf dist && tsc && node dist/demo/app.js"
+    "serve": "rm -rf dist && ./node_modules/.bin/tsc && node dist/index.js"
   },
   "dependencies": {
     "@types/koa": "^2.0.49",
