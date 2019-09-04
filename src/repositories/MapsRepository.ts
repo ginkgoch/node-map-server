@@ -38,4 +38,39 @@ export class MapsRepository {
     async insert(map: MapModel) {
         await this.dao.run(insertSql, [map.name, map.description, map.createAt, map.updateAt, map.creator, map.content]);
     }
+
+    async all(fields?: string[]) {
+        let fieldSql = fields ? fields.join(',') : '*';
+        const sql = `
+            SELECT ${fieldSql} FROM Maps
+        `;
+        const rows = await this.dao.all(sql);
+        return rows;
+    }
+
+    async get(id: number, fields?: string[]) {
+        let fieldSql = fields ? fields.join(',') : '*';
+        const sql = `
+            SELECT ${fieldSql} FROM Maps WHERE id=?
+        `;
+
+        const row = await this.dao.get(sql, [id]);
+        return row;
+    }
+
+    async delete(id: number) {
+        const sql = `
+            DELETE FROM Maps WHERE id=?
+        `;
+
+        await this.dao.run(sql, [id]);
+    }
+
+    async update(map: MapModel): Promise<void> {
+        const sql = `
+            UPDATE Maps SET(name=?, description=?, updateAt=?, creator=?, content=?) WHERE id=?
+        `;
+
+        await this.dao.run(sql, [map.name, map.description, new Date().getTime(), map.creator, map.content, map.id]);
+    }
 }
