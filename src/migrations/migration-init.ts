@@ -16,8 +16,8 @@ async function migrate() {
     };
 
     console.debug('Inserting new map.', firstMap);
-    await repository.insert(firstMap);
-    console.debug(`New map ${firstMap.name} created.`);
+    // await repository.insert(firstMap);
+    // console.debug(`New map ${firstMap.name} created.`);
 }
 
 migrate();
