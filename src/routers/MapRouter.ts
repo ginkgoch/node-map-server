@@ -1,29 +1,29 @@
+import _ from 'lodash';
 import '../shared/Native';
 import Router from "koa-router";
 import { MapService } from '../services';
 import { XYZMap } from "ginkgoch-map";
 import { Utils } from "../shared/Utils";
-import _ from 'lodash';
 
 const router = new Router();
 
-function getMapHandler(ctx: any): XYZMap {
-    return MapService.instance.getMapState('');
+async function getMapHandler(mapID: number): Promise<XYZMap> {
+    return await MapService.instance.getMapState(mapID);
 }
 
-router.get('map', Utils.resolveRouterPath('/map'), async ctx => {
-    const map = getMapHandler(ctx);
+router.get('map', Utils.resolveRouterPath('/:map'), async ctx => {
+    const map = await getMapHandler(ctx.params.map);
     Utils.json(map.toJSON(), ctx);
 });
 
-router.get('groups', Utils.resolveRouterPath('/map/groups'), async ctx => {
-    const map = getMapHandler(ctx);
+router.get('groups', Utils.resolveRouterPath('/:map/groups'), async ctx => {
+    const map = await getMapHandler(ctx.params.map);
     const groups = map.groups.map(g => g.toJSON());
     Utils.json(groups, ctx);
 });
 
-router.get('group', Utils.resolveRouterPath('/map/groups/:group'), async ctx => {
-    const map = getMapHandler(ctx);
+router.get('group', Utils.resolveRouterPath('/:map/groups/:group'), async ctx => {
+    const map = await getMapHandler(ctx.params.map);
     const group = Utils.findGroup(ctx.params.group, map);
     if (group === undefined) {
         Utils.notFound(`Group ${ctx.params.group} is not found.`, ctx);
@@ -33,8 +33,8 @@ router.get('group', Utils.resolveRouterPath('/map/groups/:group'), async ctx => 
     }
 });
 
-router.get('layers', Utils.resolveRouterPath('/map/groups/:group/layers'), async ctx => {
-    const map = getMapHandler(ctx);
+router.get('layers', Utils.resolveRouterPath('/:map/groups/:group/layers'), async ctx => {
+    const map = await getMapHandler(ctx.params.map);
     const group = Utils.findGroup(ctx.params.group, map);
     if (group === undefined) {
         Utils.notFound(`Group ${ctx.params.group} is not found.`, ctx);
@@ -44,8 +44,8 @@ router.get('layers', Utils.resolveRouterPath('/map/groups/:group/layers'), async
     }
 });
 
-router.get('layer', Utils.resolveRouterPath('/map/groups/:group/layers/:layer'), async ctx => {
-    const map = getMapHandler(ctx);
+router.get('layer', Utils.resolveRouterPath('/:map/groups/:group/layers/:layer'), async ctx => {
+    const map = await getMapHandler(ctx.params.map);
     const layer = Utils.findLayer(ctx.params.layer, ctx.params.group, map);
     if (layer === undefined) {
         Utils.notFound(`Layer ${ ctx.params.layer } is not found in group ${ ctx.params.group }.`, ctx);
@@ -65,8 +65,8 @@ router.get('layer', Utils.resolveRouterPath('/map/groups/:group/layers/:layer'),
     }
 });
 
-router.get('features', Utils.resolveRouterPath('/map/groups/:group/layers/:layer/features'), async ctx => {
-    const map = getMapHandler(ctx);
+router.get('features', Utils.resolveRouterPath('/:map/groups/:group/layers/:layer/features'), async ctx => {
+    const map = await getMapHandler(ctx.params.map);
     const layer = Utils.findLayer(ctx.params.layer, ctx.params.group, map);
     if (layer === undefined) {
         Utils.notFound(`Layer ${ ctx.params.layer } is not found in group ${ ctx.params.group }.`, ctx);
@@ -91,8 +91,8 @@ router.get('features', Utils.resolveRouterPath('/map/groups/:group/layers/:layer
     }
 });
 
-router.get('properties', Utils.resolveRouterPath('/map/groups/:group/layers/:layer/properties'), async ctx => {
-    const map = getMapHandler(ctx);
+router.get('properties', Utils.resolveRouterPath('/:map/groups/:group/layers/:layer/properties'), async ctx => {
+    const map = await getMapHandler(ctx.params.map);
     const layer = Utils.findLayer(ctx.params.layer, ctx.params.group, map);
     if (layer === undefined) {
         Utils.notFound(`Layer ${ ctx.params.layer } is not found in group ${ ctx.params.group }.`, ctx);
