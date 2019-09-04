@@ -1,6 +1,11 @@
 import sqlite3 from "sqlite3";
 import { DBUtils } from "../shared";
 
+export interface DBRunResult {
+    lastID: number,
+    changes: number
+}
+
 export class SimpleDao {
     db: sqlite3.Database
 
@@ -16,14 +21,14 @@ export class SimpleDao {
         return new SimpleDao(db);
     }
 
-    async run(sql: string, params?: any): Promise<void> {
+    async run(sql: string, params?: any): Promise<DBRunResult> {
         return new Promise((res, rej) => {
-            function handleResult(err: Error) {
+            function handleResult(this: sqlite3.RunResult, err: Error) {
                 if (err) {
                     rej(err);
                 }
                 else {
-                    res();
+                    res({ lastID: this.lastID, changes: this.changes });
                 }
             }
 
