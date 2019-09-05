@@ -2,6 +2,7 @@ import _ from "lodash";
 import { MapEngine, LayerGroup, FeatureLayer } from "ginkgoch-map";
 import { RouterContext } from "koa-router";
 import { IEnvelope } from "ginkgoch-geom";
+import { MapModel } from "../models";
 
 export class Utils {
     static resolveRouterPath(path: string, prefix?: string) {
@@ -57,6 +58,15 @@ export class Utils {
         }
 
         return filter;
+    }
+
+    static getMapModel(name: string, map: MapEngine, description?: string, creator?: string): MapModel {
+        return {  
+            name,
+            description: description || '',
+            creator: creator || 'Admin',
+            content: JSON.stringify(map.toJSON())
+        }
     }
 
     static json(json: any, ctx: RouterContext) {
