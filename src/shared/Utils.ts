@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { GKMap, LayerGroup, FeatureLayer, Field } from "ginkgoch-map";
+import { MapEngine, LayerGroup, FeatureLayer } from "ginkgoch-map";
 import { RouterContext } from "koa-router";
 import { IEnvelope } from "ginkgoch-geom";
 
@@ -18,11 +18,11 @@ export class Utils {
         return result;
     }
 
-    static findGroup(groupName: string, map: GKMap): LayerGroup | undefined {
+    static findGroup(groupName: string, map: MapEngine): LayerGroup | undefined {
         return map.groups.find(g => g.name === groupName);
     }
 
-    static findLayer(layerName: string, groupName: string, map: GKMap): FeatureLayer | undefined {
+    static findLayer(layerName: string, groupName: string, map: MapEngine): FeatureLayer | undefined {
         const group = this.findGroup(groupName, map);
         if (group === undefined) {
             return undefined;

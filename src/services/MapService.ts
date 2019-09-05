@@ -1,9 +1,9 @@
-import { XYZMap, ShapefileFeatureSource, FeatureLayer, FillStyle } from "ginkgoch-map";
+import { MapEngine } from "ginkgoch-map";
 import { Repositories } from "../repositories/Repositories";
 
 export class MapService {
     private static _instance: MapService | null = null;
-    private static _mapInfoCache: Map<number, XYZMap> = new Map<number, XYZMap>();
+    private static _mapInfoCache = new Map<number, MapEngine>();
 
     static get instance(): MapService {
         if (this._instance === null) {
@@ -13,7 +13,7 @@ export class MapService {
         return this._instance;
     }
 
-    async getMapState(id: number): Promise<XYZMap> {
+    async getMapState(id: number): Promise<MapEngine> {
         if (!MapService._mapInfoCache.has(id)) {
             const mapState = await this._getMapState(id);
             MapService._mapInfoCache.set(id, mapState);
@@ -22,31 +22,10 @@ export class MapService {
         return MapService._mapInfoCache.get(id)!;
     }
 
-    protected async _getMapState(id: number): Promise<XYZMap> {
-        // const map = new XYZMap(256, 256, 'GOOGLE');
-        // const source1 = new ShapefileFeatureSource('./demo/data/cntry02-900913.shp');
-        // source1.projection.from.projection = 'GOOGLE';
-        // source1.projection.to.projection = 'GOOGLE';
-        // const layer1 = new FeatureLayer(source1);
-        // layer1.styles.push(new FillStyle('#ff0000', '#0000ff', 1));
-        // map.pushLayers([layer1]);
-
-        // return map;
-
+    protected async _getMapState(id: number): Promise<MapEngine> {
         const mapModel = await Repositories.maps.get(id);
         const mapJSON = JSON.parse(mapModel.content);
-        const map = XYZMap.parseJSON(mapJSON);
-
-        const xyzMap = new XYZMap();
-        xyzMap.name = map.name;
-        xyzMap.srs = map.srs;
-        xyzMap.width = map.width;
-        xyzMap.height = map.height;
-        xyzMap.maximumScale = map.maximumScale;
-        xyzMap.minimumScale = map.minimumScale;
-        xyzMap.scales = map.scales;
-        xyzMap.groups = map.groups;
-        xyzMap.background = map.background;
-        return xyzMap;
+        const map = MapEngine.parseJSON(mapJSON);
+        return map;
     }
 }

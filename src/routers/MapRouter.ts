@@ -2,20 +2,28 @@ import _ from 'lodash';
 import '../shared/Native';
 import Router from "koa-router";
 import { MapService } from '../services';
-import { XYZMap } from "ginkgoch-map";
+import { MapEngine } from "ginkgoch-map";
 import { Utils } from "../shared/Utils";
+import bodyParser from 'koa-body';
 
 const router = new Router();
 
-async function getMapHandler(mapID: number): Promise<XYZMap> {
+async function getMapHandler(mapID: number): Promise<MapEngine> {
     return await MapService.instance.getMapState(mapID);
 }
 
-router.get('map', Utils.resolveRouterPath('/:map'), async ctx => {
+//#region map
+router.get('get map', Utils.resolveRouterPath('/:map'), async ctx => {
     const map = await getMapHandler(ctx.params.map);
     Utils.json(map.toJSON(), ctx);
 });
 
+router.post('create map', '/', bodyParser, async ctx => {
+
+});
+//#endregion
+
+//#region group
 router.get('groups', Utils.resolveRouterPath('/:map/groups'), async ctx => {
     const map = await getMapHandler(ctx.params.map);
     const groups = map.groups.map(g => g.toJSON());
@@ -32,7 +40,9 @@ router.get('group', Utils.resolveRouterPath('/:map/groups/:group'), async ctx =>
         Utils.json(group.toJSON(), ctx);
     }
 });
+//#endregion
 
+//#region layer
 router.get('layers', Utils.resolveRouterPath('/:map/groups/:group/layers'), async ctx => {
     const map = await getMapHandler(ctx.params.map);
     const group = Utils.findGroup(ctx.params.group, map);
@@ -64,7 +74,9 @@ router.get('layer', Utils.resolveRouterPath('/:map/groups/:group/layers/:layer')
         Utils.json(json, ctx);
     }
 });
+//#endregion
 
+//#region features
 router.get('features', Utils.resolveRouterPath('/:map/groups/:group/layers/:layer/features'), async ctx => {
     const map = await getMapHandler(ctx.params.map);
     const layer = Utils.findLayer(ctx.params.layer, ctx.params.group, map);
@@ -120,5 +132,6 @@ router.get('properties', Utils.resolveRouterPath('/:map/groups/:group/layers/:la
         Utils.json(properties, ctx);
     }
 });
+//#endregion
 
 export let MapRouter = router;
