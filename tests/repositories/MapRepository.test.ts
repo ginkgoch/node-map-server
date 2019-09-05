@@ -1,9 +1,8 @@
-import fs from 'fs';
 import sqlite3 from 'sqlite3';
 import { MapsRepository, SimpleDao } from "../../src/repositories";
 import { MapModel } from '../../src/models';
 
-const dbPath = './tests/db/maps-repo.db';
+const dbPath = ':memory:';
 describe('MapsRepository', () => {
     let repo: MapsRepository;
 
@@ -15,7 +14,6 @@ describe('MapsRepository', () => {
 
     afterAll(async () => {
         await repo.close();
-        fs.unlinkSync(dbPath);
     });
 
     it('CRUD', async () => {
