@@ -8,7 +8,7 @@ import { Repositories } from '../repositories/Repositories';
 
 const router = new Router();
 
-async function getMapHandler(mapID: number): Promise<MapEngine> {
+async function getMapEngine(mapID: number): Promise<MapEngine> {
     return await MapService.instance.getMapState(mapID);
 }
 
@@ -17,17 +17,28 @@ router.get('get map', Utils.resolveRouterPath('/:map'), async ctx => {
     const mapModel = await Repositories.maps.get(ctx.params.map);
     Utils.json(mapModel, ctx);
 });
+
+router.get('get xyz', '/:map/image/xyz/:z/:x/:y', async ctx => {
+    const mapEngine = await getMapEngine(ctx.params.map);
+    const { z, x, y } = ctx.params;
+
+    let image = await mapEngine.xyz(x, y, z);
+    let buff = ctx.body = image.toBuffer();
+
+    ctx.type = 'png';
+    ctx.length = buff.length;
+});
 //#endregion
 
 //#region group
 router.get('groups', Utils.resolveRouterPath('/:map/groups'), async ctx => {
-    const map = await getMapHandler(ctx.params.map);
+    const map = await getMapEngine(ctx.params.map);
     const groups = map.groups.map(g => g.toJSON());
     Utils.json(groups, ctx);
 });
 
 router.get('group', Utils.resolveRouterPath('/:map/groups/:group'), async ctx => {
-    const map = await getMapHandler(ctx.params.map);
+    const map = await getMapEngine(ctx.params.map);
     const group = Utils.findGroup(ctx.params.group, map);
     if (group === undefined) {
         Utils.notFound(`Group ${ctx.params.group} is not found.`, ctx);
@@ -40,7 +51,7 @@ router.get('group', Utils.resolveRouterPath('/:map/groups/:group'), async ctx =>
 
 //#region layer
 router.get('layers', Utils.resolveRouterPath('/:map/groups/:group/layers'), async ctx => {
-    const map = await getMapHandler(ctx.params.map);
+    const map = await getMapEngine(ctx.params.map);
     const group = Utils.findGroup(ctx.params.group, map);
     if (group === undefined) {
         Utils.notFound(`Group ${ctx.params.group} is not found.`, ctx);
@@ -51,20 +62,20 @@ router.get('layers', Utils.resolveRouterPath('/:map/groups/:group/layers'), asyn
 });
 
 router.get('layer', Utils.resolveRouterPath('/:map/groups/:group/layers/:layer'), async ctx => {
-    const map = await getMapHandler(ctx.params.map);
+    const map = await getMapEngine(ctx.params.map);
     const layer = Utils.findLayer(ctx.params.layer, ctx.params.group, map);
     if (layer === undefined) {
-        Utils.notFound(`Layer ${ ctx.params.layer } is not found in group ${ ctx.params.group }.`, ctx);
+        Utils.notFound(`Layer ${ctx.params.layer} is not found in group ${ctx.params.group}.`, ctx);
     }
     else {
         const json = layer.toJSON();
-        
+
         try {
             await layer.open();
             json.envelope = await layer.source.envelope();
             json.count = await layer.source.count();
-        } 
-        finally{
+        }
+        finally {
             await layer.close();
         }
         Utils.json(json, ctx);
@@ -74,10 +85,10 @@ router.get('layer', Utils.resolveRouterPath('/:map/groups/:group/layers/:layer')
 
 //#region features
 router.get('features', Utils.resolveRouterPath('/:map/groups/:group/layers/:layer/features'), async ctx => {
-    const map = await getMapHandler(ctx.params.map);
+    const map = await getMapEngine(ctx.params.map);
     const layer = Utils.findLayer(ctx.params.layer, ctx.params.group, map);
     if (layer === undefined) {
-        Utils.notFound(`Layer ${ ctx.params.layer } is not found in group ${ ctx.params.group }.`, ctx);
+        Utils.notFound(`Layer ${ctx.params.layer} is not found in group ${ctx.params.group}.`, ctx);
     }
     else {
         const filter = Utils.featuresFilter(ctx);
@@ -100,10 +111,10 @@ router.get('features', Utils.resolveRouterPath('/:map/groups/:group/layers/:laye
 });
 
 router.get('properties', Utils.resolveRouterPath('/:map/groups/:group/layers/:layer/properties'), async ctx => {
-    const map = await getMapHandler(ctx.params.map);
+    const map = await getMapEngine(ctx.params.map);
     const layer = Utils.findLayer(ctx.params.layer, ctx.params.group, map);
     if (layer === undefined) {
-        Utils.notFound(`Layer ${ ctx.params.layer } is not found in group ${ ctx.params.group }.`, ctx);
+        Utils.notFound(`Layer ${ctx.params.layer} is not found in group ${ctx.params.group}.`, ctx);
     }
     else {
         const filter = Utils.featuresFilter(ctx);
