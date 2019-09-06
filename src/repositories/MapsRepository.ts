@@ -35,8 +35,9 @@ export class MapsRepository {
         const insertSql = `
             INSERT INTO Maps (name, description, createAt, updateAt, creator, content) VALUES (?, ?, ?, ?, ?, ?)
         `;
+
         const now = new Date().getTime();
-        const lastID = await this.dao.run(insertSql, [map.name, map.description, now, now, map.creator, map.content]);
+        const lastID = await this.dao.run(insertSql, [map.name, map.description, now, now, map.creator, this._mapContentToStore(map.content)]);
         return lastID;
     }
 
@@ -46,7 +47,12 @@ export class MapsRepository {
             SELECT ${fieldSql} FROM Maps
         `;
         const rows = await this.dao.all(sql);
-        return rows;
+        return rows.map(r => {
+            if (r.content !== undefined) {
+                r.content = this._parseMapContent(r.content);
+            }
+            return r;
+        });
     }
 
     async get(id: number, fields?: string[]): Promise<MapModel> {
@@ -56,6 +62,9 @@ export class MapsRepository {
         `;
 
         const row = await this.dao.get(sql, [id]);
+        if (row.content !==  undefined) {
+            row.content = this._parseMapContent(row.content);
+        }
         return row;
     }
 
@@ -73,10 +82,39 @@ export class MapsRepository {
         `;
 
         const updateAt = new Date().getTime();
-        return await this.dao.run(sql, [map.name, map.description, updateAt, map.creator, map.content, map.id]);
+        return await this.dao.run(sql, [map.name, map.description, updateAt, map.creator, this._mapContentToStore(map.content), map.id]);
+    }
+
+    async clear(): Promise<DBRunResult> {
+        const sql = 'DELETE FROM Maps';
+        const result = await this.dao.run(sql);
+        return result;
     }
 
     async close() {
         await this.dao.close();
+    }
+
+    private _mapContentToStore(mapJson: any): string {
+        if (typeof mapJson === 'string') {
+            return mapJson;
+        }
+        else {
+            return JSON.stringify(mapJson);
+        }
+    }
+
+    private _parseMapContent(content: string | undefined): any {
+        if (content === undefined)  {
+            return content;
+        }
+        else {
+            try {
+                return JSON.parse(content);
+            }
+            catch {
+                return content;
+            }
+        }
     }
 }

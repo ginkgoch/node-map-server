@@ -1,7 +1,8 @@
 import _ from "lodash";
-import { GKMap, LayerGroup, FeatureLayer, Field } from "ginkgoch-map";
+import { MapEngine, LayerGroup, FeatureLayer } from "ginkgoch-map";
 import { RouterContext } from "koa-router";
 import { IEnvelope } from "ginkgoch-geom";
+import { MapModel } from "../models";
 
 export class Utils {
     static resolveRouterPath(path: string, prefix?: string) {
@@ -18,17 +19,17 @@ export class Utils {
         return result;
     }
 
-    static findGroup(groupName: string, map: GKMap): LayerGroup | undefined {
+    static findGroup(groupName: string, map: MapEngine): LayerGroup | undefined {
         return map.groups.find(g => g.name === groupName);
     }
 
-    static findLayer(layerName: string, groupName: string, map: GKMap): FeatureLayer | undefined {
+    static findLayer(layerId: string, groupName: string, map: MapEngine): FeatureLayer | undefined {
         const group = this.findGroup(groupName, map);
         if (group === undefined) {
             return undefined;
         }
 
-        const layer = group.layers.find(l => l.name === layerName);
+        const layer = group.layers.find(l => l.id === layerId);
         return layer;
     }
 
@@ -57,6 +58,15 @@ export class Utils {
         }
 
         return filter;
+    }
+
+    static getMapModel(name: string, map: MapEngine, description?: string, creator?: string): MapModel {
+        return {  
+            name,
+            description: description || '',
+            creator: creator || 'Admin',
+            content: JSON.stringify(map.toJSON())
+        }
     }
 
     static json(json: any, ctx: RouterContext) {

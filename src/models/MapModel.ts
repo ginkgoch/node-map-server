@@ -5,5 +5,5 @@ export interface MapModel {
     createAt?: number,
     updateAt?: number,
     creator: string,
-    content: string
+    content: any
 }
