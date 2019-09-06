@@ -24,8 +24,7 @@ export class MapService {
 
     protected async _getMapState(id: number): Promise<MapEngine> {
         const mapModel = await Repositories.maps.get(id);
-        const mapJSON = JSON.parse(mapModel.content);
-        const map = MapEngine.parseJSON(mapJSON);
+        const map = MapEngine.parseJSON(mapModel.content);
         return map;
     }
 }
