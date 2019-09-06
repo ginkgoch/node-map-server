@@ -4,6 +4,7 @@ import Router from "koa-router";
 import { MapService } from '../services';
 import { MapEngine } from "ginkgoch-map";
 import { Utils } from "../shared/Utils";
+import { Repositories } from '../repositories/Repositories';
 
 const router = new Router();
 
@@ -13,8 +14,8 @@ async function getMapHandler(mapID: number): Promise<MapEngine> {
 
 //#region map
 router.get('get map', Utils.resolveRouterPath('/:map'), async ctx => {
-    const map = await getMapHandler(ctx.params.map);
-    Utils.json(map.toJSON(), ctx);
+    const mapModel = await Repositories.maps.get(ctx.params.map);
+    Utils.json(mapModel, ctx);
 });
 //#endregion
 

@@ -23,13 +23,13 @@ export class Utils {
         return map.groups.find(g => g.name === groupName);
     }
 
-    static findLayer(layerName: string, groupName: string, map: MapEngine): FeatureLayer | undefined {
+    static findLayer(layerId: string, groupName: string, map: MapEngine): FeatureLayer | undefined {
         const group = this.findGroup(groupName, map);
         if (group === undefined) {
             return undefined;
         }
 
-        const layer = group.layers.find(l => l.name === layerName);
+        const layer = group.layers.find(l => l.id === layerId);
         return layer;
     }
 
