@@ -6,6 +6,7 @@ export class Migration_001 extends Migration {
     async migrate() {
         const repository = Repositories.maps;
         await repository.init();
+        await repository.clear();
 
         const firstMap: MapModel = {
             name: 'Map Demo',
