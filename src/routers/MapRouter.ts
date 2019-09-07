@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import '../shared/Native';
 import Router from "koa-router";
+import bodyParser from "koa-body";
 import { MapService } from '../services';
 import { MapEngine } from "ginkgoch-map";
 import { Utils } from "../shared/Utils";
@@ -16,6 +17,18 @@ async function getMapEngine(mapID: number): Promise<MapEngine> {
 router.get('get map', Utils.resolveRouterPath('/:map'), async ctx => {
     const mapModel = await Repositories.maps.get(ctx.params.map);
     Utils.json(mapModel, ctx);
+});
+
+router.put('edit map', '/:map', bodyParser(), async ctx => {
+    const mapJSON = JSON.parse(ctx.request.body);
+    mapJSON.content = MapEngine.parseJSON(mapJSON).toJSON();
+    const runResult = await Repositories.maps.update(mapJSON);
+
+    if (runResult.lastID !== mapJSON.id || runResult.changes !== 1) {
+        ctx.throw(404, new Error(`Map ID: ${mapJSON.id} doesn't exist.`));
+    }
+
+    Utils.json(mapJSON, ctx);
 });
 
 router.get('get xyz', '/:map/image/xyz/:z/:x/:y', async ctx => {
