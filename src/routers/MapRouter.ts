@@ -9,8 +9,12 @@ import { Repositories } from '../repositories/Repositories';
 
 const router = new Router();
 
-async function getMapEngine(mapID: number): Promise<MapEngine> {
-    return await MapService.instance.getMapState(mapID);
+async function getMapEngine(mapID: number | string): Promise<MapEngine> {
+    if (typeof mapID === 'string') {
+        mapID = parseInt(mapID);
+    }
+    
+    return await MapService.instance.getMapEngine(mapID);
 }
 
 //#region map
@@ -21,13 +25,15 @@ router.get('get map', Utils.resolveRouterPath('/:map'), async ctx => {
 
 router.put('edit map', '/:map', bodyParser(), async ctx => {
     const mapJSON = JSON.parse(ctx.request.body);
-    mapJSON.content = MapEngine.parseJSON(mapJSON).toJSON();
+    const mapEngine = MapEngine.parseJSON(mapJSON.content);
+    mapJSON.content = mapEngine.toJSON();
     const runResult = await Repositories.maps.update(mapJSON);
 
     if (runResult.lastID !== mapJSON.id || runResult.changes !== 1) {
         ctx.throw(404, new Error(`Map ID: ${mapJSON.id} doesn't exist.`));
     }
 
+    MapService.instance.updateMapEngine(mapJSON.id, mapEngine);
     Utils.json(mapJSON, ctx);
 });
 

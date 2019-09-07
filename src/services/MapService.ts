@@ -3,7 +3,7 @@ import { Repositories } from "../repositories/Repositories";
 
 export class MapService {
     private static _instance: MapService | null = null;
-    private static _mapInfoCache = new Map<number, MapEngine>();
+    private static _mapEngineCache = new Map<number, MapEngine>();
 
     static get instance(): MapService {
         if (this._instance === null) {
@@ -13,18 +13,22 @@ export class MapService {
         return this._instance;
     }
 
-    async getMapState(id: number): Promise<MapEngine> {
-        if (!MapService._mapInfoCache.has(id)) {
-            const mapState = await this._getMapState(id);
-            MapService._mapInfoCache.set(id, mapState);
+    async getMapEngine(id: number): Promise<MapEngine> {
+        if (!MapService._mapEngineCache.has(id)) {
+            const mapState = await this._getMapEngine(id);
+            MapService._mapEngineCache.set(id, mapState);
         }
 
-        return MapService._mapInfoCache.get(id)!;
+        return MapService._mapEngineCache.get(id)!;
     }
 
-    protected async _getMapState(id: number): Promise<MapEngine> {
+    protected async _getMapEngine(id: number): Promise<MapEngine> {
         const mapModel = await Repositories.maps.get(id);
         const map = MapEngine.parseJSON(mapModel.content);
         return map;
+    }
+
+    updateMapEngine(id: number, mapEngine: MapEngine) {
+        MapService._mapEngineCache.set(id, mapEngine);
     }
 }
