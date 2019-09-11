@@ -29,7 +29,7 @@ router.put('edit map', '/:map', bodyParser(), async ctx => {
     mapJSON.content = mapEngine.toJSON();
     const runResult = await Repositories.maps.update(mapJSON);
 
-    if (runResult.lastID !== mapJSON.id || runResult.changes !== 1) {
+    if (runResult.changes !== 1) {
         ctx.throw(404, new Error(`Map ID: ${mapJSON.id} doesn't exist.`));
     }
 
