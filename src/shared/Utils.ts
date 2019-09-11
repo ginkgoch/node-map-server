@@ -69,9 +69,10 @@ export class Utils {
         }
     }
 
-    static json(json: any, ctx: RouterContext) {
+    static json(json: any, ctx: RouterContext, status: number = 200) {
         ctx.body = json;
         ctx.type = 'json';
+        ctx.status = status;
     }
 
     static notFound(message: string, ctx: RouterContext) {
