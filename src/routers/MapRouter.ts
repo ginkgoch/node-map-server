@@ -37,6 +37,16 @@ router.put('edit map', '/:map', bodyParser(), async ctx => {
     Utils.json(mapJSON, ctx);
 });
 
+router.delete('delete map', '/:map', async ctx => {
+    const mapID = parseInt(ctx.params.map);
+    const runResult = await Repositories.maps.delete(mapID);
+    if (runResult.changes === 0) {
+        ctx.throw(404, `Map ID: ${mapID} doesn't exist.`);
+    }
+
+    Utils.json('', ctx, 204);
+});
+
 router.get('get xyz', '/:map/image/xyz/:z/:x/:y', async ctx => {
     const mapEngine = await getMapEngine(ctx.params.map);
     const { z, x, y } = ctx.params;
