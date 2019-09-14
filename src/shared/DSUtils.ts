@@ -8,7 +8,7 @@ interface DataSource {
     count: number,
     sourceType: string,
     geomType: GeometryType,
-    error?: string    
+    error?: string
 }
 
 abstract class DSAdaptor {
@@ -48,7 +48,7 @@ class ShapefileAdaptor extends DSAdaptor {
             return { name, path, srs, count, sourceType, geomType, error: ex.toString() };
         }
         finally {
-            shapefileSource.close();
+            await shapefileSource.close();
         }
     }
 

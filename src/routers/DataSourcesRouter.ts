@@ -1,4 +1,5 @@
 import fs from "fs";
+import _ from "lodash";
 import path from "path";
 import Router from "koa-router";
 import config from "../config/config";
@@ -16,7 +17,7 @@ router.get('get data sources', '/dataSources', async ctx => {
     const dataSources = new Array<any>();
     for (let filePath of filePaths) {
         const dataSource = await DSAdaptorFactory.info(filePath);
-        if (dataSource && dataSource.error === undefined) {
+        if (dataSource && _.isEmpty(dataSource.error)) {
             dataSources.push(dataSource);
         }
     }
