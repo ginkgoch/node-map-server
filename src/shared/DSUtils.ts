@@ -8,6 +8,7 @@ interface DataSource {
     count: number,
     sourceType: string,
     geomType: GeometryType,
+    envelope: number[],
     error?: string
 }
 
@@ -26,26 +27,27 @@ class ShapefileAdaptor extends DSAdaptor {
 
     match(path: string): boolean {
         return path.match(/\.shp$/i) !== null;
-    }    
-    
+    }
+
     async info(path: string): Promise<DataSource> {
         const sourceType = this.sourceType();
         const shapefileSource = new ShapefileFeatureSource(path);
         const name = shapefileSource.name;
         path = shapefileSource.filePath;
         let geomType = GeometryType.Unknown;
-        let srs = '';
-        let count = 0;
+        let srs = '', count = 0, envelope: number[] = [];
 
         try {
             await shapefileSource.open();
             srs = _.defaultTo(_.result(shapefileSource, 'projection.from.projection'), 'Unknown');
             count = await shapefileSource.count();
             geomType = this.shapefileTypeToGeomType(shapefileSource.shapeType);
-            return { name, path, srs, count, sourceType, geomType };
+            const { minx, miny, maxx, maxy } = await shapefileSource.envelope();
+            envelope = [minx, miny, maxx, maxy];
+            return { name, path, srs, count, sourceType, geomType, envelope };
         }
-        catch(ex) {
-            return { name, path, srs, count, sourceType, geomType, error: ex.toString() };
+        catch (ex) {
+            return { name, path, srs, count, sourceType, geomType, error: ex.toString(), envelope };
         }
         finally {
             await shapefileSource.close();
