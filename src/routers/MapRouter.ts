@@ -121,21 +121,11 @@ router.get('features', Utils.resolveRouterPath('/:map/groups/:group/layers/:laye
         Utils.notFound(`Layer ${ctx.params.layer} is not found in group ${ctx.params.group}.`, ctx);
     }
     else {
-        const filter = Utils.featuresFilter(ctx);
+        const filter = FilterUtils.parseFeaturesFilter(ctx);
 
         await layer.open();
         let features = await layer.source.features(filter.envelope, filter.fields);
-
-        let from = 0;
-        let limit = features.length;
-        if (filter.from) {
-            from = filter.from;
-        }
-        if (filter.limit) {
-            limit = filter.limit;
-        }
-        features = _.chain(features).slice(from, from + limit).value();
-
+        features = FilterUtils.applyFeaturesFilter(features, filter);
         Utils.json(features.map(f => f.toJSON()), ctx);
     }
 });
@@ -147,25 +137,11 @@ router.get('properties', Utils.resolveRouterPath('/:map/groups/:group/layers/:la
         Utils.notFound(`Layer ${ctx.params.layer} is not found in group ${ctx.params.group}.`, ctx);
     }
     else {
-        const filter = Utils.featuresFilter(ctx);
+        const filter = FilterUtils.parseFeaturesFilter(ctx);
 
         await layer.open();
         let properties = await layer.source.properties(filter.fields);
-
-        let from = 0;
-        let limit = properties.length;
-        if (filter.from) {
-            from = filter.from;
-        }
-        if (filter.limit) {
-            limit = filter.limit;
-        }
-        properties = _.chain(properties).slice(from, from + limit).map(p => {
-            const props: any = {};
-            p.forEach((v, k) => props[k] = v);
-            return props;
-        }).value();
-
+        properties = FilterUtils.applyPropertiesFilter(properties, filter);
         Utils.json(properties, ctx);
     }
 });

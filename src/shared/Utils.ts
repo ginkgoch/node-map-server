@@ -1,9 +1,7 @@
 import _ from "lodash";
 import { MapEngine, LayerGroup, FeatureLayer } from "ginkgoch-map";
 import { RouterContext } from "koa-router";
-import { IEnvelope } from "ginkgoch-geom";
 import { MapModel } from "../models";
-import { FilterUtils } from "./FilterUtils";
 
 export class Utils {
     static resolveRouterPath(path: string, prefix?: string) {
@@ -34,33 +32,6 @@ export class Utils {
         return layer;
     }
 
-    static featuresFilter(ctx: RouterContext): FeaturesFilter {
-        // ?fields=[]&from=0&limit=10&envelope=-180,-90，180，90
-
-        const filter: FeaturesFilter = {};
-        if (ctx.query.fields !== undefined) {
-            filter.fields = FilterUtils.parseFieldsFilter(ctx);
-        }
-
-        if (ctx.query.from !== undefined) {
-            filter.from = parseInt(<string>ctx.query.from);
-        }
-
-        if (ctx.query.limit !== undefined) {
-            filter.limit = parseInt(<string>ctx.query.limit);
-        }
-
-        if (ctx.query.envelope !== undefined) {
-            const envelopeParams = (<string>ctx.query.envelope).split(',');
-            if (envelopeParams.length === 4) {
-                let [minx, miny, maxx, maxy] = envelopeParams.map(p => parseFloat(p));
-                filter.envelope = { minx, miny, maxx, maxy};
-            }
-        }
-
-        return filter;
-    }
-
     static getMapModel(name: string, map: MapEngine, description?: string, creator?: string): MapModel {
         return {  
             name,
@@ -80,11 +51,4 @@ export class Utils {
         ctx.status = 404;
         ctx.message = message;
     }
-}
-
-export interface FeaturesFilter {
-    fields?: string[],
-    from?: number,
-    limit?: number,
-    envelope?: IEnvelope
 }
