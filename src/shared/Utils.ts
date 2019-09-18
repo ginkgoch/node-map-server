@@ -3,6 +3,7 @@ import { MapEngine, LayerGroup, FeatureLayer } from "ginkgoch-map";
 import { RouterContext } from "koa-router";
 import { IEnvelope } from "ginkgoch-geom";
 import { MapModel } from "../models";
+import { FilterUtils } from "./FilterUtils";
 
 export class Utils {
     static resolveRouterPath(path: string, prefix?: string) {
@@ -38,7 +39,7 @@ export class Utils {
 
         const filter: FeaturesFilter = {};
         if (ctx.query.fields !== undefined) {
-            filter.fields = (<string>ctx.query.fields).split(',');
+            filter.fields = FilterUtils.parseFieldsFilter(ctx);
         }
 
         if (ctx.query.from !== undefined) {

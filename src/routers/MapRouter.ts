@@ -6,6 +6,7 @@ import { MapService } from '../services';
 import { MapEngine } from "ginkgoch-map";
 import { Utils } from "../shared/Utils";
 import { Repositories } from '../repositories/Repositories';
+import { FilterUtils } from '../shared';
 
 const router = new Router();
 
@@ -166,6 +167,29 @@ router.get('properties', Utils.resolveRouterPath('/:map/groups/:group/layers/:la
         }).value();
 
         Utils.json(properties, ctx);
+    }
+});
+
+router.get('fields', '/:map/groups/:group/layers/:layer/fields', async ctx => {
+    const map = await getMapEngine(ctx.params.map);
+    const layer = Utils.findLayer(ctx.params.layer, ctx.params.group, map);
+    if (layer === undefined) {
+        Utils.notFound(`Layer ${ctx.params.layer} is not found in group ${ctx.params.group}.`, ctx);
+    }
+    else {
+        try {
+            await layer.open();
+            const fields = await layer.source.fields();
+
+            let fieldsJSON: any[] = fields.map(f => f.toJSON());
+            fieldsJSON = FilterUtils.applyFieldTypesFilterFromContext(fieldsJSON, ctx);
+            fieldsJSON = FilterUtils.applyFieldsFilterFromContext(fieldsJSON, ctx);
+
+            Utils.json(fieldsJSON, ctx);
+        }
+        finally {
+            await layer.close();
+        }
     }
 });
 //#endregion
