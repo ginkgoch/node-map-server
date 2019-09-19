@@ -14,7 +14,7 @@ async function getMapEngine(mapID: number | string): Promise<MapEngine> {
     if (typeof mapID === 'string') {
         mapID = parseInt(mapID);
     }
-    
+
     return await MapService.instance.getMapEngine(mapID);
 }
 
@@ -139,10 +139,40 @@ router.get('properties', Utils.resolveRouterPath('/:map/groups/:group/layers/:la
     else {
         const filter = FilterUtils.parseFeaturesFilter(ctx);
 
-        await layer.open();
-        let properties = await layer.source.properties(filter.fields);
-        properties = FilterUtils.applyPropertiesFilter(properties, filter);
-        Utils.json(properties, ctx);
+        try{
+            await layer.open();
+            let properties = await layer.source.properties(filter.fields);
+            properties = FilterUtils.applyPropertiesFilter(properties, filter);
+            Utils.json(properties, ctx);
+        }
+        finally {
+            await layer.close();
+        }
+    }
+});
+
+router.get('property', Utils.resolveRouterPath('/:map/groups/:group/layers/:layer/properties/:field'), async ctx => {
+    const map = await getMapEngine(ctx.params.map);
+    const layer = Utils.findLayer(ctx.params.layer, ctx.params.group, map);
+    if (layer === undefined) {
+        Utils.notFound(`Layer ${ctx.params.layer} is not found in group ${ctx.params.group}.`, ctx);
+    }
+    else {
+        const filter = FilterUtils.parseFeaturesFilter(ctx);
+        const fieldName = ctx.params.field;
+
+        try {
+            await layer.open();
+            let properties = await layer.source.properties([fieldName]);
+            properties = FilterUtils.applyPropertiesFilter(properties, filter);
+
+            let propertyValues = properties.map(p => _.has(p, fieldName) ? _.result(p, fieldName) : null);
+            propertyValues = FilterUtils.applyPropertyAggregatorsFromContext(propertyValues, ctx);
+            Utils.json(propertyValues, ctx);
+        }
+        finally {
+            await layer.close();
+        }
     }
 });
 
