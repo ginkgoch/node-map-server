@@ -90,7 +90,7 @@ export class FilterUtils {
         if (filter.limit) {
             limit = filter.limit;
         }
-        
+
         features = _.chain(features).slice(from, from + limit).value();
 
         return features;
@@ -116,6 +116,55 @@ export class FilterUtils {
         return properties;
     }
     //#endregion
+
+    //#region property aggregator
+    static parseAggregators(ctx: RouterContext): string[] {
+        if (!ctx.query.aggregators) {
+            return [];
+        }
+        else {
+            return (<string>ctx.query.aggregators).split(',');
+        }
+    }
+
+    static applyPropertyAggregators(propertyValues: any[], aggregators: string[]): any[] {
+        if (!aggregators || aggregators.length === 0) {
+            return propertyValues;
+        }
+
+        const aggregatedValues: any[] = [];
+        for (let aggregator of aggregators) {
+            switch (aggregator.toLowerCase()) {
+                case Aggregators.distinct:
+                    aggregatedValues.push({ [Aggregators.distinct]: _.uniq(propertyValues) });
+                    break;
+                case 'max':
+                case Aggregators.maximum:
+                    aggregatedValues.push({ [Aggregators.maximum]: _.max(propertyValues) });
+                    break;
+                case 'min':
+                case Aggregators.minimum:
+                    aggregatedValues.push({ [Aggregators.minimum]: _.min(propertyValues) });
+                    break;
+                case 'avg':
+                case Aggregators.average:
+                    aggregatedValues.push({ [Aggregators.average]: _.sum(propertyValues) / propertyValues.length });
+                    break;
+                case Aggregators.count:
+                    aggregatedValues.push({ [Aggregators.count]: propertyValues.length });
+                    break;
+            }
+        }
+
+        return aggregatedValues;
+    }
+
+    static applyPropertyAggregatorsFromContext(propertyValues: any[], ctx: RouterContext) {
+        const aggregators = this.parseAggregators(ctx);
+        const aggregatedValues = this.applyPropertyAggregators(propertyValues, aggregators);
+        return aggregatedValues;
+    }
+    //#endregion
 }
 
 export interface FeaturesFilter {
@@ -123,4 +172,12 @@ export interface FeaturesFilter {
     from?: number,
     limit?: number,
     envelope?: IEnvelope
+}
+
+export enum Aggregators {
+    distinct = 'distinct',
+    minimum = 'minimum',
+    maximum = 'maximum',
+    average = 'average',
+    count = 'count'
 }
