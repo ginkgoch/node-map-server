@@ -40,6 +40,15 @@ export class Utils {
             content: JSON.stringify(map.toJSON())
         }
     }
+    
+    static parseRequestBody(ctx: RouterContext): any {
+        if (/json/i.test(ctx.request.headers['content-type'])) {
+            return ctx.request.body;
+        }
+        else {
+            return JSON.parse(ctx.request.body);
+        }
+    }
 
     static json(json: any, ctx: RouterContext, status: number = 200) {
         ctx.body = json;

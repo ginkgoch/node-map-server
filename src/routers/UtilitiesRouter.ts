@@ -14,7 +14,7 @@ const router = new Router();
  * }
  */
 router.post('Break down colors', '/utilities/color/breakdown', bodyParser(), ctx => {
-    const params = JSON.parse(ctx.request.body);
+    const params = Utils.parseRequestBody(ctx);
     validateClassBreakParams(params, ctx);
 
     const colors = Colors.between(<string>params.fromColor, <string>params.toColor, params.count);
