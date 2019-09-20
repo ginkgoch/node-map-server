@@ -25,7 +25,7 @@ router.get('get map', Utils.resolveRouterPath('/:map'), async ctx => {
 });
 
 router.put('edit map', '/:map', bodyParser(), async ctx => {
-    const mapJSON = JSON.parse(ctx.request.body);
+    const mapJSON = Utils.parseRequestBody(ctx);
     const mapEngine = MapEngine.parseJSON(mapJSON.content);
     mapJSON.content = mapEngine.toJSON();
     const runResult = await Repositories.maps.update(mapJSON);
