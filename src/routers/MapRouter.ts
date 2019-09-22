@@ -3,10 +3,11 @@ import '../shared/Native';
 import Router from "koa-router";
 import bodyParser from "koa-body";
 import { MapService } from '../services';
-import { MapEngine } from "ginkgoch-map";
+import { MapEngine, Geometry, Point, Envelope, Polygon, LinearRing } from "ginkgoch-map";
 import { Utils } from "../shared/Utils";
 import { Repositories } from '../repositories/Repositories';
 import { FilterUtils } from '../shared';
+import { SpatialUtils } from '../shared/SpatialUtils';
 
 const router = new Router();
 
@@ -57,6 +58,44 @@ router.get('get xyz', '/:map/image/xyz/:z/:x/:y', async ctx => {
 
     ctx.type = 'png';
     ctx.length = buff.length;
+});
+
+router.get('intersection', '/:map/query/intersection', async ctx => {
+    const params = FilterUtils.parseIntersectionFilter(ctx);
+    console.log(params);
+    if (params.geom === undefined
+        || (params.geom.length !== 2 && params.geom.length !== 4)
+        || params.geomSrs === undefined
+        || params.level === undefined
+        || params.tolerance === undefined) {
+        ctx.throw(400, new Error('Intersection parameter is not valid. Be sure the geom, geomSrs, level and tolerance are properly set.'));
+    }
+
+    const mapEngine = await getMapEngine(ctx.params.map);
+    let geom: Geometry;
+    if (params.geom!.length === 2) {
+        const [x, y] = params.geom!;
+        geom = new Point(x, y);
+    }
+    else {
+        const [minx, miny, maxx, maxy] = params.geom!;
+        geom = new Polygon(new LinearRing([
+            { x: minx, y: miny },
+            { x: maxx, y: miny },
+            { x: maxx, y: maxy },
+            { x: minx, y: maxy },
+            { x: minx, y: miny }
+        ]));
+    }
+
+    const features = await mapEngine.intersection(geom, params.geomSrs!, params.level!, params.tolerance!);
+
+    if (params.simplify) {
+        const scale = mapEngine.scales[params.level!];
+        features.forEach(l => l.features.forEach(f => f.geometry = SpatialUtils.simplify(f.geometry, scale, mapEngine.srs.unit, 1)));
+    }
+
+    return Utils.json(features, ctx);
 });
 //#endregion
 
@@ -139,7 +178,7 @@ router.get('properties', Utils.resolveRouterPath('/:map/groups/:group/layers/:la
     else {
         const filter = FilterUtils.parseFeaturesFilter(ctx);
 
-        try{
+        try {
             await layer.open();
             let properties = await layer.source.properties(filter.fields);
             properties = FilterUtils.applyPropertiesFilter(properties, filter);

@@ -165,6 +165,37 @@ export class FilterUtils {
         return aggregatedValues;
     }
     //#endregion
+
+    //#region intersection
+    static parseIntersectionFilter(ctx: RouterContext) {
+        const result: { geom?: number[], geomSrs?: string, level?: number, tolerance?: number, simplify?: boolean } = {};
+
+        if (ctx.query.geom) {
+            result.geom = (<string>ctx.query.geom).split(',').map(n => parseFloat(n));
+        }
+
+        if (ctx.query.geomSrs) {
+            result.geomSrs = ctx.query.geomSrs;
+        }
+
+        if (ctx.query.level) {
+            result.level = parseInt(ctx.query.level);
+        }
+
+        if (ctx.query.tolerance) {
+            result.tolerance = parseFloat(ctx.query.tolerance);
+        }
+        else {
+            result.tolerance = 10;
+        }
+
+        if (ctx.query.simplify) {
+            result.simplify = ctx.query.simplify.toLowerCase() === 'true';
+        }
+
+        return result;
+    }
+    //#endregion
 }
 
 export interface FeaturesFilter {

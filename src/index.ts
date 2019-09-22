@@ -12,7 +12,7 @@ MigrationManager.migrate().then(() => {
     app.use(cors());
     app.use(compress({
         threshold: 1024,
-        filter: contentType => /image/i.test(contentType)
+        filter: contentType => /image/i.test(contentType) || /json/i.test(contentType)
     }))
     app.use(DataSourcesRouter.routes());
     app.use(DataSourcesRouter.allowedMethods());
