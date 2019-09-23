@@ -3,7 +3,7 @@ import '../shared/Native';
 import Router from "koa-router";
 import bodyParser from "koa-body";
 import { MapService } from '../services';
-import { MapEngine, Geometry, Point, Envelope, Polygon, LinearRing } from "ginkgoch-map";
+import { MapEngine, Geometry, Point, Envelope, Polygon, LinearRing, Projection } from "ginkgoch-map";
 import { Utils } from "../shared/Utils";
 import { Repositories } from '../repositories/Repositories';
 import { FilterUtils } from '../shared';
@@ -62,7 +62,6 @@ router.get('get xyz', '/:map/image/xyz/:z/:x/:y', async ctx => {
 
 router.get('intersection', '/:map/query/intersection', async ctx => {
     const params = FilterUtils.parseIntersectionFilter(ctx);
-    console.log(params);
     if (params.geom === undefined
         || (params.geom.length !== 2 && params.geom.length !== 4)
         || params.geomSrs === undefined
@@ -93,6 +92,11 @@ router.get('intersection', '/:map/query/intersection', async ctx => {
     if (params.simplify) {
         const scale = mapEngine.scales[params.level!];
         features.forEach(l => l.features.forEach(f => f.geometry = SpatialUtils.simplify(f.geometry, scale, mapEngine.srs.unit, 1)));
+    }
+
+    if (params.outSrs && params.outSrs !== mapEngine.srs.projection) {
+        const proj = new  Projection(mapEngine.srs.projection, params.outSrs);
+        features.forEach(l => l.features.forEach(f => f.geometry = proj.forward(f.geometry)));
     }
 
     return Utils.json(features, ctx);
