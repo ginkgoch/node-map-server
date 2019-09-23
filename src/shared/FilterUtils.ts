@@ -168,7 +168,7 @@ export class FilterUtils {
 
     //#region intersection
     static parseIntersectionFilter(ctx: RouterContext) {
-        const result: { geom?: number[], geomSrs?: string, level?: number, tolerance?: number, simplify?: boolean } = {};
+        const result: { geom?: number[], geomSrs?: string, level?: number, tolerance?: number, outSrs?: string, simplify?: boolean } = {};
 
         if (ctx.query.geom) {
             result.geom = (<string>ctx.query.geom).split(',').map(n => parseFloat(n));
@@ -186,7 +186,11 @@ export class FilterUtils {
             result.tolerance = parseFloat(ctx.query.tolerance);
         }
         else {
-            result.tolerance = 10;
+            result.tolerance = 2;
+        }
+
+        if (ctx.query.outSrs) {
+            result.outSrs = ctx.query.outSrs;
         }
 
         if (ctx.query.simplify) {
