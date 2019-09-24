@@ -3,10 +3,10 @@ import '../shared/Native';
 import Router from "koa-router";
 import bodyParser from "koa-body";
 import { MapService } from '../services';
-import { MapEngine, Geometry, Point, Envelope, Polygon, LinearRing, Projection } from "ginkgoch-map";
+import { MapEngine, Geometry, Point, Envelope, Polygon, LinearRing, Projection, ShapefileFeatureSource } from "ginkgoch-map";
 import { Utils } from "../shared/Utils";
 import { Repositories } from '../repositories/Repositories';
-import { FilterUtils } from '../shared';
+import { FilterUtils, LayerUtils } from '../shared';
 import { SpatialUtils } from '../shared/SpatialUtils';
 
 const router = new Router();
@@ -141,16 +141,18 @@ router.get('layer', Utils.resolveRouterPath('/:map/groups/:group/layers/:layer')
         Utils.notFound(`Layer ${ctx.params.layer} is not found in group ${ctx.params.group}.`, ctx);
     }
     else {
-        const json = layer.toJSON();
-
+        let json = layer.toJSON();
         try {
             await layer.open();
             json.envelope = await layer.source.envelope();
             json.count = await layer.source.count();
+            json.geomType = LayerUtils.shapefileTypeToGeomType((<ShapefileFeatureSource>layer.source).shapeType);
         }
         finally {
             await layer.close();
         }
+
+        json = FilterUtils.applyLayerFilterFromContext(json, ctx);
         Utils.json(json, ctx);
     }
 });

@@ -1,5 +1,6 @@
-import { ShapefileFeatureSource, GeometryType, ShapefileType } from "ginkgoch-map";
+import { ShapefileFeatureSource, GeometryType } from "ginkgoch-map";
 import _ from "lodash";
+import { LayerUtils } from "./LayerUtils";
 
 interface DataSource {
     name: string,
@@ -41,7 +42,7 @@ class ShapefileAdaptor extends DSAdaptor {
             await shapefileSource.open();
             srs = _.defaultTo(_.result(shapefileSource, 'projection.from.projection'), 'Unknown');
             count = await shapefileSource.count();
-            geomType = this.shapefileTypeToGeomType(shapefileSource.shapeType);
+            geomType = LayerUtils.shapefileTypeToGeomType(shapefileSource.shapeType);
             const { minx, miny, maxx, maxy } = await shapefileSource.envelope();
             envelope = [minx, miny, maxx, maxy];
             return { name, path, srs, count, sourceType, geomType, envelope };
@@ -51,21 +52,6 @@ class ShapefileAdaptor extends DSAdaptor {
         }
         finally {
             await shapefileSource.close();
-        }
-    }
-
-    shapefileTypeToGeomType(shapefileType: ShapefileType): GeometryType {
-        switch (shapefileType) {
-            case ShapefileType.point:
-                return GeometryType.Point;
-            case ShapefileType.polyLine:
-                return GeometryType.LineString;
-            case ShapefileType.polygon:
-                return GeometryType.Polygon;
-            case ShapefileType.multiPoint:
-                return GeometryType.MultiPoint;
-            default:
-                return GeometryType.Unknown;
         }
     }
 }
