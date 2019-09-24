@@ -200,6 +200,26 @@ export class FilterUtils {
         return result;
     }
     //#endregion
+
+    //#region layer
+    static parseLayerFilter(ctx: RouterContext) {
+        const fields: string[] = [];
+        if (ctx.query.fields) {
+            (<string>ctx.query.fields).split(',').forEach(f => fields.push(f));
+        }
+
+        return fields;
+    }
+
+    static applyLayerFilterFromContext(layerJSON: any, ctx: RouterContext) {
+        const fields = this.parseLayerFilter(ctx);
+        if (fields && fields.length > 0) {
+            layerJSON = _.pick(layerJSON, fields);
+        }
+
+        return layerJSON;
+    }
+    //#endregion
 }
 
 export interface FeaturesFilter {
