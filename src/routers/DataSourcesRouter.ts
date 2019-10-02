@@ -13,7 +13,7 @@ router.get('get data sources', '/dataSources', async ctx => {
         Utils.json([], ctx);
     }
 
-    const filePaths = IOUtils.readDir(rootPath, ['.shp']).map(f => path.relative(process.cwd(), f));
+    const filePaths = collectFilePaths();
     const dataSources = new Array<any>();
     for (let filePath of filePaths) {
         const dataSource = await DSAdaptorFactory.info(filePath);
@@ -23,5 +23,22 @@ router.get('get data sources', '/dataSources', async ctx => {
     }
     Utils.json(dataSources, ctx);
 });
+
+function collectFilePaths() {
+    const filePaths: string[] = [];
+    const filePathsDefault = IOUtils.readDir(config.DS_ROOT, ['.shp']).map(f => path.relative(process.cwd(), f));
+    filePaths.push(...filePathsDefault);
+
+    if (config.DS_ROOT_EX && config.DS_ROOT_EX.length > 0) {
+        for (let rootEx of config.DS_ROOT_EX) {
+            if (!fs.existsSync(rootEx)) continue;
+
+            const filePathsEx = IOUtils.readDir(rootEx, ['.shp']).map(f => path.relative(process.cwd(), f));
+            filePaths.push(...filePathsEx);
+        }
+    }
+
+    return filePaths;
+}
 
 export const DataSourcesRouter = router;
