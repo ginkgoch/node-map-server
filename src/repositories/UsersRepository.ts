@@ -44,6 +44,18 @@ export class UsersRepository {
         return lastID;
     }
 
+    async all(fields?: string[]): Promise<UserModel[]> {
+        let fieldSql = fields ? fields.join(',') : '*';
+        const sql = `
+            SELECT ${fieldSql} FROM Users
+        `;
+
+        const rows = await this.dao.all(sql);
+        rows.forEach(UsersRepository.invalidPassword);
+
+        return rows;
+    }
+
     async get(id: number, fields?: string[]): Promise<UserModel> {
         let fieldSql = fields ? fields.join(',') : '*';
         const sql = `
@@ -51,9 +63,8 @@ export class UsersRepository {
         `;
 
         const row = await this.dao.get(sql, [id]);
-        if (row.password) {
-            row.password = '';
-        }
+
+        UsersRepository.invalidPassword(row);
         return row;
     }
 
@@ -89,5 +100,11 @@ export class UsersRepository {
         const md5 = crypto.createHash('md5');
         const encrypted = md5.update(password).digest('hex');
         return encrypted;
+    }
+
+    private static invalidPassword(user: UserModel) {
+        if (user.password) {
+            user.password = '';
+        }
     }
 }
