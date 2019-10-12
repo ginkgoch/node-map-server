@@ -1,9 +1,31 @@
 import { Migration } from "./MigrationManager";
-import { MapModel } from "../models";
+import { MapModel, UserModel } from "../models";
 import { Repositories } from '../repositories/Repositories';
+import config from '../config/config';
 
 export class Migration_001 extends Migration {
     async migrate() {
+        await this.initUsers();
+        await this.initMap();
+    }
+
+    private async initUsers() {
+        console.debug('Creating Users table.');
+        await Repositories.users.init();
+        console.debug('Created Users table.');
+
+        const admin: UserModel = {
+            name: config.ADMIN,
+            email: config.ADMIN_EMAIL,
+            password: config.ADMIN_PASSWORD
+        };
+
+        console.debug('Inserting admin account.');
+        await Repositories.users.insert(admin);
+        console.debug('Inserted admin account.');
+    }
+
+    private async initMap() {
         const repository = Repositories.maps;
         await repository.init();
         await repository.clear();
