@@ -121,9 +121,9 @@ export class UsersRepository {
         return encrypted;
     }
 
-    private static invalidPassword(user: UserModel) {
+    static invalidPassword(user: UserModel) {
         if (user && user.password) {
-            user.password = '';
+            user.password = ''.padStart(8, '*');
         }
     }
 }

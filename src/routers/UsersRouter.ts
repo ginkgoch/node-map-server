@@ -3,6 +3,9 @@ import bodyParser from "koa-body";
 import { Utils } from "../shared";
 import { Repositories } from "../repositories/Repositories";
 import { UserModel } from "../models";
+import { UsersRepository } from "../repositories";
+import jwt from "jsonwebtoken";
+import config from "../config/config";
 
 const router = new Router();
 router.post('register user', '/users/signup', bodyParser(), async ctx => {
@@ -26,8 +29,29 @@ router.post('register user', '/users/signup', bodyParser(), async ctx => {
 
     const result = await Repositories.users.insert(requestingUser);
     requestingUser.id = result.lastID;
-    requestingUser.password = ''.padStart(requestingUser.password.length, '*');
+    UsersRepository.invalidPassword(requestingUser);
     Utils.json(requestingUser, ctx);
+});
+
+router.post('login', '/users/signin', bodyParser(), async ctx => {
+    const loginInfo = Utils.parseRequestBody(ctx);
+    if (!loginInfo.name || !loginInfo.password) {
+        ctx.throw(400, 'User name or password should not be empty.');
+    }
+
+    const password = UsersRepository.encryptPassword(loginInfo.password);
+    const user = await Repositories.users.getUserBy(new Map([['name', loginInfo.name], ['password', password]]), 'AND');
+    if (user === undefined) {
+        ctx.throw(401, `User doesn't exist or password incorrect.`)
+    }
+
+    // Utils.json(user, ctx);
+    const token = jwt.sign({
+        id: user!.id,
+        name: user!.name
+    }, config.JWT_SECRET, { expiresIn: '2h' });
+
+    Utils.json({ token }, ctx);
 });
 
 export const UsersRouter = router;
