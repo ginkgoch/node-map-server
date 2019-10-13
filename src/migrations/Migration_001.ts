@@ -20,9 +20,15 @@ export class Migration_001 extends Migration {
             password: config.ADMIN_PASSWORD
         };
 
-        console.debug('Inserting admin account.');
-        await Repositories.users.insert(admin);
-        console.debug('Inserted admin account.');
+        const existingAdmin = await Repositories.users.getUserBy(new Map([['name', admin.name], ['email', admin.email]]), 'AND');
+        if (existingAdmin === undefined) {
+            console.debug('Inserting admin account.');
+            await Repositories.users.insert(admin);
+            console.debug('Inserted admin account.');
+        }
+        else {
+            console.debug('Admin account exists. Ignore inserting.')
+        }
     }
 
     private async initMap() {
