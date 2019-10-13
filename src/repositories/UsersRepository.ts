@@ -68,6 +68,25 @@ export class UsersRepository {
         return row;
     }
 
+    async getUserBy(searchFields: Map<string, string>, relation: 'AND'|'OR' = 'AND', fields?: string[]): Promise<UserModel | undefined> {
+        let fieldSql = fields ? fields.join(',') : '*';
+        let sql = `
+            SELECT ${fieldSql} FROM Users WHERE 1=1
+        `;
+
+        if (searchFields.size > 0) {
+            let filterParams = new Array<string>();
+            searchFields.forEach((v, k) => filterParams.push(` ${k}=?`));
+            sql += ` AND (${filterParams.join(relation)})`
+        }
+
+        const filterValues = Array.from(searchFields).map(f => f[1]);
+        const row = await this.dao.get(sql, filterValues);
+
+        UsersRepository.invalidPassword(row);
+        return row;
+    }
+
     async delete(id: number): Promise<DBRunResult> {
         const sql = `
             DELETE FROM Users WHERE id=?
@@ -102,9 +121,9 @@ export class UsersRepository {
         return encrypted;
     }
 
-    private static invalidPassword(user: UserModel) {
-        if (user.password) {
-            user.password = '';
+    static invalidPassword(user: UserModel) {
+        if (user && user.password) {
+            user.password = ''.padStart(8, '*');
         }
     }
 }
