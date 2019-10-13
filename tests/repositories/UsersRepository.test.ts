@@ -25,6 +25,7 @@ describe('UsersRepository', () => {
 
         records = await repo.all();
         expect(records.length).toBe(1);
+        expect(records[0].password).not.toEqual(user.password);
 
         user.id = result.lastID;
         let fetchUserModel = await repo.get(user.id);
@@ -39,6 +40,14 @@ describe('UsersRepository', () => {
         fetchUserModel = await repo.get(user.id);
         expect(fetchUserModel.name).toEqual('Jenny');
         expect(fetchUserModel.updateAt).not.toEqual(fetchUserModel.createAt);
+
+        let recordByUserFilter = await repo.getUserBy(new Map<string, string>([['name', 'Jenny']]));
+        expect(recordByUserFilter).not.toBeNull();
+        expect(recordByUserFilter).not.toBeUndefined();
+        expect(recordByUserFilter!.name).toEqual('Jenny');
+
+        recordByUserFilter = await repo.getUserBy(new Map<string, string>([['name', 'Max']]));
+        expect(recordByUserFilter).toBeUndefined();
 
         result = await repo.delete(user.id);
         expect(result.changes).toBe(1);
