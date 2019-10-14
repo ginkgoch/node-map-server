@@ -7,6 +7,7 @@ export default {
     ADMIN_PASSWORD: 'admin',
     ADMIN_EMAIL: 'ginkgoch@outlook.com',
     JWT_SECRET: 'RESET',
+    AUTH_ENABLED: false,
     DB_FILE_PATH: path.resolve(__dirname, '../../db/database.db'),
     DB_CURRENT_VERSION: 0,
     DS_ROOT: path.join(process.cwd(), 'src/data/'),
