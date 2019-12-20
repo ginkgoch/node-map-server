@@ -15,3 +15,8 @@ code .
 ```
 
 Then your project template is ready :)
+
+## Run with Docker
+```bash
+docker run --name map-server -p 3000:3000 -d ginkgoch/map-server
+```
