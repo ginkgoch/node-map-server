@@ -4,7 +4,7 @@ import cors from '@koa/cors';
 import koa_jwt from 'koa-jwt';
 import logger from 'koa-logger';
 import config from './config/config';
-import { MapsRouter, DataSourcesRouter, UtilitiesRouter, UsersRouter } from './routers';
+import { MapsRouter, DataSourcesRouter, UtilitiesRouter, UsersRouter, VersionRouter } from './routers';
 import { MigrationManager } from "./migrations";
 
 MigrationManager.migrate().then(() => {
@@ -17,6 +17,7 @@ MigrationManager.migrate().then(() => {
     }));
 
     app.use(koa_jwt({ secret: config.JWT_SECRET, passthrough: !config.AUTH_ENABLED }).unless({ path: [/\/users\/signin/ig] }));
+    app.use(VersionRouter.routes()).use(VersionRouter.allowedMethods());
     app.use(UsersRouter.routes()).use(UsersRouter.allowedMethods());
     app.use(DataSourcesRouter.routes()).use(DataSourcesRouter.allowedMethods());
     app.use(MapsRouter.routes()).use(MapsRouter.allowedMethods());
