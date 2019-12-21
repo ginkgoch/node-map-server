@@ -68,6 +68,17 @@ export class MapsRepository {
         return row;
     }
 
+    async tryGet(id: number, fields?: string[]): Promise<MapModel|null> {
+        let row = null;
+        try {
+            row = await this.get(id, fields);
+        } catch {
+            console.debug(`Map <id=${id}> doesn't exist.`);
+        }
+
+        return row;
+    }
+
     async delete(id: number): Promise<DBRunResult> {
         const sql = `
             DELETE FROM Maps WHERE id=?
