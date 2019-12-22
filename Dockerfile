@@ -2,7 +2,7 @@ FROM node:13.5
 
 WORKDIR /root/map-server/
 COPY ./dist ./dist
-COPY ./db ./db
+RUN mkdir -p ./db
 COPY ./src/data ./src/data
 COPY ./package.json ./package.json
 RUN npm install --production
