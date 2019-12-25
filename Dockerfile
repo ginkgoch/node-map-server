@@ -1,4 +1,4 @@
-FROM node:13.5
+FROM wemyss/node-canvas
 
 WORKDIR /root/map-server/
 COPY ./dist ./dist
