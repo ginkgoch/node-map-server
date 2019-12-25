@@ -11,7 +11,8 @@ const cpuLength = config.CLUSTER_SLAVE_COUNT;
 export function serveCluster() {
     if (cluster.isMaster) {
         console.log(`Master process <${process.pid}> launches.`);
-    
+        console.log(`Prepare to folk ${cpuLength} processes.`);
+        
         for (let i = 0; i < cpuLength; i++) {
             cluster.fork();
         }
