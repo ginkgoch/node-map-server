@@ -1,5 +1,6 @@
 import { MapEngine } from "ginkgoch-map";
 import { Repositories } from "../repositories/Repositories";
+import config from "../config/config";
 
 export class MapService {
     private static _instance: MapService | null = null;
@@ -37,6 +38,8 @@ export class MapService {
         const currentUpdateAt = MapService._mapUpdatedCache.get(id);
         if (currentUpdateAt === undefined) {
             return false;
+        } else if (!config.CLUSTER_ON) {
+            return true;
         } else {
             try {
                 const mapModel = await Repositories.maps.get(id, ['updateAt']);
