@@ -92,8 +92,8 @@ export class MapsRepository {
             UPDATE Maps SET name=?, description=?, updateAt=?, creator=?, content=? WHERE id=?
         `;
 
-        const updateAt = new Date().getTime();
-        return await this.dao.run(sql, [map.name, map.description, updateAt, map.creator, this._mapContentToStore(map.content), map.id]);
+        map.updateAt = new Date().getTime();
+        return await this.dao.run(sql, [map.name, map.description, map.updateAt, map.creator, this._mapContentToStore(map.content), map.id]);
     }
 
     async clear(): Promise<DBRunResult> {
