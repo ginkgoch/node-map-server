@@ -35,7 +35,7 @@ router.put('edit map', '/:map', bodyParser(), async ctx => {
         ctx.throw(404, new Error(`Map ID: ${mapJSON.id} doesn't exist.`));
     }
 
-    MapService.instance.updateMapEngine(mapJSON.id, mapEngine);
+    MapService.instance.updateMapEngine(mapJSON.id, mapEngine, mapJSON.updateAt);
     Utils.json(mapJSON, ctx);
 });
 
