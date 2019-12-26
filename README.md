@@ -89,3 +89,6 @@ One more thing I think the worsest thing for node is the memory restriction (e.g
 
 #### Mature JavaScript Echo-System
 JavaScript has a great echo-system for full-stack technology. It is allow to build cross-platform website, service, desktop or even mobile applications. `Ginkgoch` will also provide those solutions on this cross-platform, various categories of GIS applications. (PS. it is now supported website, webserivce, desktop; and mobile is in my backlog).
+
+## Issues
+Contact [ginkgoch@outlook.com](mailto:ginkgoch@outlook.com) or [submit an issue](https://github.com/ginkgoch/node-map-server/issues). Happy mapping 😎
