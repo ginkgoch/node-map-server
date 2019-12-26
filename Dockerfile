@@ -1,5 +1,4 @@
-FROM wemyss/node-canvas
-
+FROM ginkgoch/node-canvas:latest
 WORKDIR /root/map-server/
 COPY ./dist ./dist
 RUN mkdir -p ./db
