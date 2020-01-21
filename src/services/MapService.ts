@@ -1,9 +1,11 @@
 import { MapEngine } from "ginkgoch-map";
 import { Repositories } from "../repositories/Repositories";
+import config from "../config/config";
 
 export class MapService {
     private static _instance: MapService | null = null;
     private static _mapEngineCache = new Map<number, MapEngine>();
+    private static _mapUpdatedCache = new Map<number, number>();
 
     static get instance(): MapService {
         if (this._instance === null) {
@@ -14,21 +16,38 @@ export class MapService {
     }
 
     async getMapEngine(id: number): Promise<MapEngine> {
-        if (!MapService._mapEngineCache.has(id)) {
-            const mapState = await this._getMapEngine(id);
+        if (!(await MapService.checkCacheUpToDate(id))) {
+            console.log(`Map cache <${id}> expired, updating...`);
+            const mapModel = await Repositories.maps.get(id);
+            const mapState = MapEngine.parseJSON(mapModel.content);
             MapService._mapEngineCache.set(id, mapState);
+            MapService._mapUpdatedCache.set(id, mapModel.updateAt!);
+            
+            console.log(`Map cache <${id}> updated`);
         }
 
         return MapService._mapEngineCache.get(id)!;
     }
 
-    protected async _getMapEngine(id: number): Promise<MapEngine> {
-        const mapModel = await Repositories.maps.get(id);
-        const map = MapEngine.parseJSON(mapModel.content);
-        return map;
+    updateMapEngine(id: number, mapEngine: MapEngine, updateAt: number) {
+        MapService._mapUpdatedCache.set(id, updateAt);
+        MapService._mapEngineCache.set(id, mapEngine);
     }
 
-    updateMapEngine(id: number, mapEngine: MapEngine) {
-        MapService._mapEngineCache.set(id, mapEngine);
+    private static async checkCacheUpToDate(id: number): Promise<boolean> {
+        const currentUpdateAt = MapService._mapUpdatedCache.get(id);
+        if (currentUpdateAt === undefined) {
+            return false;
+        } else if (!config.CLUSTER_ON) {
+            return true;
+        } else {
+            try {
+                const mapModel = await Repositories.maps.get(id, ['updateAt']);
+                const latestUpdateAt = mapModel.updateAt!;
+                return currentUpdateAt >= latestUpdateAt;
+            } catch (ex) {
+                return false;
+            }
+        }
     }
 }

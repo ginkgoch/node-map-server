@@ -1,0 +1,30 @@
+version: '3.5'
+
+services: 
+    map-server:
+        image: ginkgoch/map-server:v1
+        container_name: map-server
+        ports: 
+            - 3000:3000
+        restart: always
+        volumes:
+            - ~/Downloads/Africa_SHP/:/root/map-server/data/
+        environment: 
+            - CLUSTER_ON=true
+            - CLUSTER_SLAVE_COUNT=4
+        networks: 
+            - ginkgoch-network
+    map-server-ui:
+        image: ginkgoch/map-server-ui:v1
+        container_name: map-server-ui
+        ports: 
+            - 8080:8080
+        restart: always
+        depends_on: 
+            - map-server
+        networks: 
+            - ginkgoch-network
+
+networks:
+    ginkgoch-network:
+        name: ginkgoch-network

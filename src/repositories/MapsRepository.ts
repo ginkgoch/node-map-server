@@ -68,6 +68,17 @@ export class MapsRepository {
         return row;
     }
 
+    async tryGet(id: number, fields?: string[]): Promise<MapModel|null> {
+        let row = null;
+        try {
+            row = await this.get(id, fields);
+        } catch {
+            console.debug(`Map <id=${id}> doesn't exist.`);
+        }
+
+        return row;
+    }
+
     async delete(id: number): Promise<DBRunResult> {
         const sql = `
             DELETE FROM Maps WHERE id=?
@@ -81,8 +92,8 @@ export class MapsRepository {
             UPDATE Maps SET name=?, description=?, updateAt=?, creator=?, content=? WHERE id=?
         `;
 
-        const updateAt = new Date().getTime();
-        return await this.dao.run(sql, [map.name, map.description, updateAt, map.creator, this._mapContentToStore(map.content), map.id]);
+        map.updateAt = new Date().getTime();
+        return await this.dao.run(sql, [map.name, map.description, map.updateAt, map.creator, this._mapContentToStore(map.content), map.id]);
     }
 
     async clear(): Promise<DBRunResult> {

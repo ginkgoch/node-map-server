@@ -35,7 +35,7 @@ export class Migration_001 extends Migration {
         const repository = Repositories.maps;
         await repository.init();
 
-        let firstMap = await repository.get(1);
+        let firstMap = await repository.tryGet(1);
         if (!firstMap) {
             firstMap = {
                 name: 'The Cedid Atlas Tercumesi',

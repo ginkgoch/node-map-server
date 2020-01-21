@@ -3,3 +3,4 @@ dist/
 yarn.lock
 db/
 data/
+.DS_Store
