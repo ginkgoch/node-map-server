@@ -1,4 +1,4 @@
-version: '3'
+version: '3.5'
 
 services: 
     map-server:
@@ -12,6 +12,8 @@ services:
         environment: 
             - CLUSTER_ON=true
             - CLUSTER_SLAVE_COUNT=4
+        networks: 
+            - ginkgoch-network
     map-server-ui:
         image: ginkgoch/map-server-ui:v1
         container_name: map-server-ui
@@ -20,3 +22,9 @@ services:
         restart: always
         depends_on: 
             - map-server
+        networks: 
+            - ginkgoch-network
+
+networks:
+    ginkgoch-network:
+        name: ginkgoch-network
