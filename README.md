@@ -39,8 +39,9 @@ We provide the docker images on [docker hub](hub.docker.com) for OPs team. Devel
 
 #### Launch server and ui demo with `docker compose`
 Docker compose is the easiest way to launch this server as well as a UI interface.
+
 ```bash
-curl -o docker-compose.yml https://gist.github.com/ginkgoch/5b3bc8c9e081a9389d78daa2ba4622b0/raw/fc6a5985ea83b127f093d91b8ab4df8cebc14ebf/map-server-docker-compose.yml && docker-compose up
+curl -o docker-compose.yml https://gist.githubusercontent.com/ginkgoch/5b3bc8c9e081a9389d78daa2ba4622b0/raw/fc6a5985ea83b127f093d91b8ab4df8cebc14ebf/map-server-docker-compose.yml --insecure && docker-compose up
 ```
 
 Once it launches, type `http://localhost:8080` in browser to try this demo.
@@ -50,9 +51,9 @@ Once it launches, type `http://localhost:8080` in browser to try this demo.
 docker run --name map-server -p 3000:3000 -d ginkgoch/map-server
 ```
 
-#### Launch server with `docker` and mounte a physical data path
+#### Launch server with `docker` and mounts a physical data path
 ```bash
-docker run --name map-server -p 3000:3000 -v "/Users/ginkgoch/Downloads/Africa_SHP/:/root/map-server/data/" -d ginkgoch/map-server
+docker run --name map-server -p 3000:3000 -v "[PATH to DATA]/Africa_SHP/:/root/map-server/data/" -d ginkgoch/map-server
 ```
 
 ## FAQ
@@ -85,10 +86,10 @@ It really depends on the scenario of your application. For example:
 
 I don't think the application is a pure I/O or CPU intensive application, but for the balanced workload application, I would say the performance will be about the same. 
 
-One more thing I think the worsest thing for node is the memory restriction (e.g. 1G in 64-bit system). We need to either reduce the memory usage or manually expand the memory.
+One worst thing I can imagine for node is the memory restriction (e.g. 1G in 64-bit system). We need to either reduce the memory usage or manually expand the memory.
 
 #### Mature JavaScript Echo-System
-JavaScript has a great echo-system for full-stack technology. It is allow to build cross-platform website, service, desktop or even mobile applications. `Ginkgoch` will also provide those solutions on this cross-platform, various categories of GIS applications. (PS. it is now supported website, webserivce, desktop; and mobile is in my backlog).
+JavaScript has a great echo-system for full-stack technology. It is allow to build cross-platform website, service, desktop or even mobile applications. `Ginkgoch` will also provide those solutions on this cross-platform, various categories of GIS applications. (PS. it is now supported website, web service, desktop; and mobile is in my backlog).
 
 ## Issues
 Contact [ginkgoch@outlook.com](mailto:ginkgoch@outlook.com) or [submit an issue](https://github.com/ginkgoch/node-map-server/issues). Happy mapping 😎
