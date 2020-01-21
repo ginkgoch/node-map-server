@@ -41,7 +41,7 @@ We provide the docker images on [docker hub](hub.docker.com) for OPs team. Devel
 Docker compose is the easiest way to launch this server as well as a UI interface.
 
 ```bash
-curl -o docker-compose.yml https://gist.githubusercontent.com/ginkgoch/5b3bc8c9e081a9389d78daa2ba4622b0/raw/fc6a5985ea83b127f093d91b8ab4df8cebc14ebf/map-server-docker-compose.yml --insecure && docker-compose up
+curl -o docker-compose.yml https://ginkgoch.com/node-map-server/docker-compose.yml --insecure && docker-compose up
 ```
 
 Once it launches, type `http://localhost:8080` in browser to try this demo.
