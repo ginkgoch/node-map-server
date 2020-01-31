@@ -1,9 +1,11 @@
 import fs from 'fs';
 import sqlite3 from 'sqlite3';
 import config from '../config/config';
+import path from 'path';
 
 export class DBUtils {
     static async open() {
+        DBUtils._initDBFolder();
         if (fs.existsSync(config.DB_FILE_PATH)) {
             console.debug('Database file exists, skip creating.');
             return await this._open();
@@ -41,5 +43,12 @@ export class DBUtils {
                 }
             });
         });
+    }
+
+    private static _initDBFolder() {
+        const dirname = path.dirname(config.DB_FILE_PATH);
+        if(!fs.existsSync(dirname)) {
+            fs.mkdirSync(dirname, { recursive: true });
+        }
     }
 }
